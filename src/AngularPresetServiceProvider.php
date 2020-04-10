@@ -2,27 +2,34 @@
 
 namespace Walteribeiro\AngularPreset;
 
-use Illuminate\Foundation\Console\PresetCommand;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Ui\Presets\Preset;
+use Laravel\Ui\UiCommand;
 
-/**
- * User: Walter Ribeiro
- * Date: 12/10/2017
- */
 class AngularPresetServiceProvider extends ServiceProvider
 {
     /**
-     * Bootstrap the application services.
+     * Register services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+    /**
+     * Bootstrap services.
      *
      * @return void
      */
     public function boot()
     {
-        PresetCommand::macro('angular', function ($command) {
-            AngularPreset::install(false);
-            $command->info('Angular 4 scaffolding installed successfully.');
-            $command->comment('Please run "npm install && npm run dev" to compile your fresh scaffolding.');
+        UiCommand::macro('angular-v9', function (UiCommand $command) {
+            AngularPreset::install();
+
+            $command->info('Angular V9 scaffolding installed successfully.');
+            $command->comment('Please run "yarn && yarn dev" to compile your fresh scaffolding.');
         });
     }
-
 }

@@ -1,15 +1,13 @@
 <?php
 
+
 namespace Walteribeiro\AngularPreset;
 
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Foundation\Console\Presets\Preset;
-use Illuminate\Support\Arr;
 
-/**
- * User: Walter Ribeiro
- * Date: 12/10/2017
- */
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Arr;
+use Laravel\Ui\Presets\Preset;
+
 class AngularPreset extends Preset
 {
     /**
@@ -21,35 +19,16 @@ class AngularPreset extends Preset
     {
         static::updatePackages();
         static::updateWebpackConfiguration();
-        static::updateBootstrapping();
-        static::ensureComponentDirectoryExists();
-        static::updateComponent();
-        static::removeNodeModules();
-    }
 
-    /**
-     * Update the given package array.
-     *
-     * @param  array $packages
-     * @return array
-     */
-    protected static function updatePackageArray(array $packages)
-    {
-        return [
-                '@angular/common' => '^4.0.0',
-                '@angular/compiler' => '^4.0.0',
-                '@angular/core' => '^4.0.0',
-                '@angular/forms' => '^4.0.0',
-                '@angular/http' => '^4.0.0',
-                '@angular/platform-browser' => '^4.0.0',
-                '@angular/platform-browser-dynamic' => '^4.0.0',
-                '@angular/router' => '^4.0.0',
-                'core-js' => '^2.4.1',
-                'rxjs' => '^5.1.0',
-                'ts-loader' => '^2.3.7',
-                'typescript' => '~2.2.0',
-                'zone.js' => '^0.8.4'
-            ] + Arr::except($packages, ['axios', 'jquery', 'vue']);
+        tap(new Filesystem, function (Filesystem $filesystem) {
+            $filesystem->deleteDirectory(resource_path('js'));
+            $filesystem->makeDirectory(resource_path('ts'));
+            $filesystem->makeDirectory(resource_path('ts/app'));
+            $filesystem->makeDirectory(resource_path('ts/environments'));
+        });
+
+        static::removeNodeModules();
+        static::updateAngularApp();
     }
 
     /**
@@ -63,27 +42,51 @@ class AngularPreset extends Preset
     }
 
     /**
-     * Update the example component.
+     * Update the Angular files.
      *
      * @return void
      */
-    protected static function updateComponent()
+    protected static function updateAngularApp()
     {
-        (new Filesystem)->deleteDirectory(resource_path('assets/js/components'), true);
-
-        copy(__DIR__ . '/angular-stubs/example.component.ts', resource_path('assets/js/components/example.component.ts'));
+        copy(__DIR__ . '/angular-stubs/main.ts', resource_path('ts/main.ts'));
+        copy(__DIR__ . '/angular-stubs/app/app.module.ts', resource_path('ts/app/app.module.ts'));
+        copy(__DIR__ . '/angular-stubs/app/app.component.ts', resource_path('ts/app/app.component.ts'));
+        copy(__DIR__ . '/angular-stubs/environment.ts', resource_path('ts/environments/environment.ts'));
+        copy(__DIR__ . '/angular-stubs/app/tsconfig.json', resource_path('ts/tsconfig.json'));
+        copy(__DIR__ . '/angular-stubs/tslint.json', resource_path('ts/tslint.json'));
+        copy(__DIR__ . '/angular-stubs/app/welcome.blade.php', resource_path('views/welcome.blade.php'));
+        copy(__DIR__ . '/angular-stubs/polyfills.ts', resource_path('ts/polyfills.ts'));
+        copy(__DIR__ . '/angular-stubs/vendor.ts', resource_path('ts/vendor.ts'));
+        copy(__DIR__ . '/angular-stubs/tsconfig.json', resource_path('tsconfig.json'));
     }
 
     /**
-     * Update the bootstrapping files.
+     * Update the given package array.
      *
-     * @return void
+     * @param array $packages
+     * @return array
      */
-    protected static function updateBootstrapping()
+    protected static function updatePackageArray(array $packages)
     {
-        copy(__DIR__ . '/angular-stubs/main.ts', resource_path('assets/js/main.ts'));
-        copy(__DIR__ . '/angular-stubs/app.module.ts', resource_path('assets/js/app.module.ts'));
-        copy(__DIR__ . '/angular-stubs/environment.ts', resource_path('assets/js/environment.ts'));
-        copy(__DIR__ . '/angular-stubs/tsconfig.json', resource_path('assets/js/tsconfig.json'));
+        return [
+                "@angular/animations" => "~9.1.0",
+                "@angular/common" => "~9.1.0",
+                "@angular/compiler" => "~9.1.0",
+                "@angular/core" => "~9.1.0",
+                "@angular/forms" => "~9.1.0",
+                "@angular/platform-browser" => "~9.1.0",
+                "@angular/platform-browser-dynamic" => "~9.1.0",
+                "@angular/router" => "~9.1.0",
+                "@types/node" => "^12.11.1",
+                'core-js' => '^2.5.4',
+                "rxjs" => "~6.5.4",
+                'ts-loader' => '~6.2.2',
+                "ts-node" => "~8.3.0",
+                "tslib" => "^1.10.0",
+                "tslint" => "~6.1.0",
+                "typescript" => "~3.8.3",
+                "webpack" => "^4.42.1",
+                "zone.js" => "~0.10.2",
+            ] + Arr::except($packages, ['axios', 'lodash']);
     }
 }
